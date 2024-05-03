@@ -4,20 +4,25 @@ import br.com.rafaellino.taxapi.app.port.in.TaxUseCase;
 import br.com.rafaellino.taxapi.app.port.in.contract.TaxInGetContract;
 import br.com.rafaellino.taxapi.app.port.in.contract.TaxInPaymentRequestDto;
 import br.com.rafaellino.taxapi.app.port.in.contract.TaxInPaymentResponseDto;
+import br.com.rafaellino.taxapi.app.port.in.contract.TaxInPaymentStatusResponseDto;
 import br.com.rafaellino.taxapi.app.port.mapper.TaxMapper;
 import br.com.rafaellino.taxapi.app.port.out.ProdespIntegration;
 import br.com.rafaellino.taxapi.app.port.out.TaxPaymentDispatch;
+import br.com.rafaellino.taxapi.app.repository.TaxPaymentRepository;
 import br.com.rafaellino.taxapi.domain.exception.TaxPaymentNotFoundException;
 import br.com.rafaellino.taxapi.domain.model.Document;
 import br.com.rafaellino.taxapi.domain.model.TaxPayment;
 import br.com.rafaellino.taxapi.domain.model.TaxPaymentStatusEnum;
 import br.com.rafaellino.taxapi.domain.model.TaxType;
-import br.com.rafaellino.taxapi.app.repository.TaxPaymentRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.List;
 
 public class TaxService implements TaxUseCase {
+
+  private static final Logger log = LogManager.getLogger(TaxService.class);
 
   private final ProdespIntegration prodespIntegration;
   private final TaxMapper taxMapper;
@@ -58,5 +63,28 @@ public class TaxService implements TaxUseCase {
   @Override
   public TaxInPaymentResponseDto getPaymentById(Long id) {
     return taxMapper.toInPaymentResponseDto(taxPaymentRepository.findById(id));
+  }
+
+  @Override
+  public TaxInPaymentResponseDto rejectTaxPayment(TaxInPaymentStatusResponseDto taxInPaymentStatusResponseDto) {
+    TaxInPaymentResponseDto res = updateStatus(taxInPaymentStatusResponseDto.id(), TaxPaymentStatusEnum.ERROR);
+    log.info("payment failed due to {}", taxInPaymentStatusResponseDto.cause());
+    return res;
+  }
+
+  @Override
+  public TaxInPaymentResponseDto acceptTaxPayment(TaxInPaymentStatusResponseDto taxInPaymentStatusResponseDto) {
+    TaxInPaymentResponseDto res = updateStatus(taxInPaymentStatusResponseDto.id(), TaxPaymentStatusEnum.COMPLETED);
+    log.info("payment successfully completed due to {}", taxInPaymentStatusResponseDto.cause());
+    return res;
+  }
+
+  private TaxInPaymentResponseDto updateStatus(Long id, TaxPaymentStatusEnum statusEnum) {
+    TaxPayment taxPayment = taxPaymentRepository.findById(id);
+    if (taxPayment == null) {
+      throw new TaxPaymentNotFoundException("Payment not found in db");
+    }
+    taxPayment.setStatus(statusEnum);
+    return taxMapper.toInPaymentResponseDto(taxPayment);
   }
 }

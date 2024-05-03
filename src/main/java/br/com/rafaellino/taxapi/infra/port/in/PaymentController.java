@@ -3,6 +3,7 @@ package br.com.rafaellino.taxapi.infra.port.in;
 import br.com.rafaellino.taxapi.app.port.in.TaxUseCase;
 import br.com.rafaellino.taxapi.app.port.in.contract.TaxInPaymentRequestDto;
 import br.com.rafaellino.taxapi.app.port.in.contract.TaxInPaymentResponseDto;
+import br.com.rafaellino.taxapi.app.port.in.contract.TaxInPaymentStatusResponseDto;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,28 @@ public class PaymentController {
   public ResponseEntity<TaxInPaymentResponseDto> getPaymentRequest(@RequestParam Long id) {
     try {
       var res = taxUseCase.getPaymentById(id);
+      return ResponseEntity.status(HttpStatus.OK).body(res);
+    } catch (RuntimeException e) {
+      log.error(e);
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+  }
+
+  @PostMapping("/reject")
+  public ResponseEntity<TaxInPaymentResponseDto> rejectPayment(@RequestBody TaxInPaymentStatusResponseDto taxInPaymentStatusResponseDto) {
+    try {
+        var res = taxUseCase.rejectTaxPayment(taxInPaymentStatusResponseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+     } catch (RuntimeException e) {
+      log.error(e);
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+  }
+
+  @PostMapping("/complete")
+  public ResponseEntity<TaxInPaymentResponseDto> acceptPayment(@RequestBody TaxInPaymentStatusResponseDto taxInPaymentRequestDto) {
+    try {
+      var res = taxUseCase.acceptTaxPayment(taxInPaymentRequestDto);
       return ResponseEntity.status(HttpStatus.OK).body(res);
     } catch (RuntimeException e) {
       log.error(e);
