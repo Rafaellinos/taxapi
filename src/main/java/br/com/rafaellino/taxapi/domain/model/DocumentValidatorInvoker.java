@@ -1,9 +1,6 @@
-package br.com.rafaellino.taxapi.domain.usecase;
+package br.com.rafaellino.taxapi.domain.model;
 
 import br.com.rafaellino.taxapi.domain.exception.DocumentInvalidException;
-import br.com.rafaellino.taxapi.domain.model.Document;
-import br.com.rafaellino.taxapi.domain.model.DocumentCnpjValidator;
-import br.com.rafaellino.taxapi.domain.model.DocumentCpfValidator;
 
 public class DocumentValidatorInvoker {
   public static void validate(final Document value) {

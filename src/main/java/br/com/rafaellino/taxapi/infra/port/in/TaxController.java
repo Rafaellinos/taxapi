@@ -3,7 +3,8 @@ package br.com.rafaellino.taxapi.infra.port.in;
 import br.com.rafaellino.taxapi.app.port.in.TaxUseCase;
 import br.com.rafaellino.taxapi.app.port.in.contract.TaxInGetContract;
 import br.com.rafaellino.taxapi.domain.exception.DocumentInvalidException;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +17,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/tax")
-@Slf4j
 public class TaxController {
 
+  private static final Logger log = LogManager.getLogger(TaxController.class);
   private final TaxUseCase taxUseCase;
 
   @Autowired

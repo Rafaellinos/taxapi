@@ -1,7 +1,5 @@
 package br.com.rafaellino.taxapi.domain.model;
 
-import br.com.rafaellino.taxapi.domain.usecase.DocumentValidatorInvoker;
-
 public class Document {
 
   private final String document;
